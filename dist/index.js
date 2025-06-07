@@ -865,10 +865,10 @@ module.exports = (function(e, t) {
     const lines = [];
 
     const totalTime = e.data.human_readable_total || "N/A";
-    lines.push(`🕒 Total time: ${totalTime}\n`);
+    lines.push(`🕒 Total time: ${totalTime}`);
 
     // Format Languages
-    lines.push(`📚 Languages:\n`);
+    lines.push(`📚 Languages:`);
     for (let i = 0; i < Math.min(e.data.languages.length, 5); i++) {
       const { name, percent, text } = e.data.languages[i];
       const line = [
@@ -880,21 +880,7 @@ module.exports = (function(e, t) {
       lines.push(line.join(" "));
     }
 
-    // Format Editors
-    lines.push(`\n🛠 Editors:\n`);
-    for (let i = 0; i < Math.min(e.data.editors.length, 3); i++) {
-      const { name, percent, text } = e.data.editors[i];
-      const line = [
-        trimRightStr(name, 12).padEnd(12),
-        text.padEnd(14),
-        generateBarChart(percent, 21),
-        String(percent.toFixed(1)).padStart(5) + "%"
-      ];
-      lines.push(line.join(" "));
-    }
-
-    // Format Operating Systems
-    lines.push(`\n💻 Operating Systems:\n`);
+    lines.push(`\n💻 Operating Systems:`);
     for (let i = 0; i < Math.min(e.data.operating_systems.length, 3); i++) {
       const { name, percent, text } = e.data.operating_systems[i];
       const line = [
