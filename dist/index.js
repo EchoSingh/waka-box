@@ -837,70 +837,79 @@ module.exports = (function(e, t) {
     e.exports = require("os");
   },
   104: function(e, t, r) {
-    r(63).config();
-    const { WakaTimeClient: n, RANGE: i } = r(650);
-    const s = r(0);
-    const { GIST_ID: o, GH_TOKEN: a, WAKATIME_API_KEY: u } = process.env;
-    const p = new n(u);
-    const c = new s({ auth: `token ${a}` });
-    async function main() {
-      const e = await p.getMyStats({ range: i.LAST_7_DAYS });
-      await updateGist(e);
+  r(63).config();
+  const { WakaTimeClient: n, RANGE: i } = r(650);
+  const s = r(0);
+  const { GIST_ID: o, GH_TOKEN: a, WAKATIME_API_KEY: u } = process.env;
+  const p = new n(u);
+  const c = new s({ auth: `token ${a}` });
+
+  async function main() {
+    const e = await p.getMyStats({ range: i.LAST_7_DAYS });
+    await updateGist(e);
+  }
+
+  function trimRightStr(e, t) {
+    return e.length > t ? e.substring(0, t - 3) + "..." : e;
+  }
+
+  async function updateGist(e) {
+    let t;
+    try {
+      t = await c.gists.get({ gist_id: o });
+    } catch (e) {
+      console.error(`Unable to get gist\n${e}`);
+      return;
     }
-    function trimRightStr(e, t) {
-      return e.length > t ? e.substring(0, t - 3) + "..." : e;
+
+    const r = [];
+    for (let t = 0; t < Math.min(e.data.languages.length, 5); t++) {
+      const n = e.data.languages[t];
+      const { name: i, percent: s, text: o } = n;
+      const a = [
+        trimRightStr(i, 10).padEnd(10),
+        o.padEnd(14),
+        generateBarChart(s, 21),
+        String(s.toFixed(1)).padStart(5) + "%"
+      ];
+      r.push(a.join(" "));
     }
-    async function updateGist(e) {
-      let t;
-      try {
-        t = await c.gists.get({ gist_id: o });
-      } catch (e) {
-        console.error(`Unable to get gist\n${e}`);
-      }
-      const r = [];
-      for (let t = 0; t < Math.min(e.data.languages.length, 5); t++) {
-        const n = e.data.languages[t];
-        const { name: i, percent: s, text: o } = n;
-        const a = [
-          trimRightStr(i, 10).padEnd(10),
-          o.padEnd(14),
-          generateBarChart(s, 21),
-          String(s.toFixed(1)).padStart(5) + "%"
-        ];
-        r.push(a.join(" "));
-      }
-      if (r.length == 0) return;
-      try {
-        const e = Object.keys(t.data.files)[0];
-        await c.gists.update({
-          gist_id: o,
-          files: {
-            [e]: {
-              filename: `📊 Weekly development breakdown`,
-              content: r.join("\n")
-            }
+
+    if (r.length === 0) return;
+
+    try {
+      const e = Object.keys(t.data.files)[0];
+      await c.gists.update({
+        gist_id: o,
+        files: {
+          [e]: {
+            filename: `📊 Weekly development breakdown`,
+            content: r.join("\n")
           }
-        });
-      } catch (e) {
-        console.error(`Unable to update gist\n${e}`);
-      }
+        }
+      });
+    } catch (e) {
+      console.error(`Unable to update gist\n${e}`);
     }
-    function generateBarChart(e, t) {
-      const r = "░▏▎▍▌▋▊▉█";
-      const n = Math.floor((t * 8 * e) / 100);
-      const i = Math.floor(n / 8);
-      if (i >= t) {
-        return r.substring(8, 9).repeat(t);
-      }
-      const s = n % 8;
-      return [r.substring(8, 9).repeat(i), r.substring(s, s + 1)]
-        .join("")
-        .padEnd(t, r.substring(0, 1));
+  }
+
+  function generateBarChart(e, t) {
+    const r = "░▏▎▍▌▋▊▉█";
+    const n = Math.floor((t * 8 * e) / 100);
+    const i = Math.floor(n / 8);
+    if (i >= t) {
+      return r.substring(8, 9).repeat(t);
     }
-    (async () => {
-      await main();
-    })();
-  },
+    const s = n % 8;
+    return [r.substring(8, 9).repeat(i), r.substring(s, s + 1)]
+      .join("")
+      .padEnd(t, r.substring(0, 1));
+  }
+
+  (async () => {
+    await main();
+  })();
+},
   118: function(e, t, r) {
     "use strict";
     const n = r(87);
