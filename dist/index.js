@@ -862,34 +862,58 @@ module.exports = (function(e, t) {
       return;
     }
 
-    const r = [];
+    const lines = [];
 
-    // Include total time coded in the last 7 days
     const totalTime = e.data.human_readable_total || "N/A";
-    r.push(`🕒 Total time: ${totalTime}\n`);
+    lines.push(`🕒 Total time: ${totalTime}\n`);
 
-    for (let t = 0; t < Math.min(e.data.languages.length, 10); t++) {
-      const n = e.data.languages[t];
-      const { name: i, percent: s, text: o } = n;
-      const a = [
-        trimRightStr(i, 10).padEnd(10),
-        o.padEnd(14),
-        generateBarChart(s, 21),
-        String(s.toFixed(1)).padStart(5) + "%"
+    // Format Languages
+    lines.push(`📚 Languages:\n`);
+    for (let i = 0; i < Math.min(e.data.languages.length, 5); i++) {
+      const { name, percent, text } = e.data.languages[i];
+      const line = [
+        trimRightStr(name, 12).padEnd(12),
+        text.padEnd(14),
+        generateBarChart(percent, 21),
+        String(percent.toFixed(1)).padStart(5) + "%"
       ];
-      r.push(a.join(" "));
+      lines.push(line.join(" "));
     }
 
-    if (r.length <= 1) return;
+    // Format Editors
+    lines.push(`\n🛠 Editors:\n`);
+    for (let i = 0; i < Math.min(e.data.editors.length, 3); i++) {
+      const { name, percent, text } = e.data.editors[i];
+      const line = [
+        trimRightStr(name, 12).padEnd(12),
+        text.padEnd(14),
+        generateBarChart(percent, 21),
+        String(percent.toFixed(1)).padStart(5) + "%"
+      ];
+      lines.push(line.join(" "));
+    }
+
+    // Format Operating Systems
+    lines.push(`\n💻 Operating Systems:\n`);
+    for (let i = 0; i < Math.min(e.data.operating_systems.length, 3); i++) {
+      const { name, percent, text } = e.data.operating_systems[i];
+      const line = [
+        trimRightStr(name, 12).padEnd(12),
+        text.padEnd(14),
+        generateBarChart(percent, 21),
+        String(percent.toFixed(1)).padStart(5) + "%"
+      ];
+      lines.push(line.join(" "));
+    }
 
     try {
-      const e = Object.keys(t.data.files)[0];
+      const fileName = Object.keys(t.data.files)[0];
       await c.gists.update({
         gist_id: o,
         files: {
-          [e]: {
+          [fileName]: {
             filename: `📊 Weekly development (last 7 days)`,
-            content: r.join("\n")
+            content: lines.join("\n")
           }
         }
       });
@@ -915,7 +939,6 @@ module.exports = (function(e, t) {
     await main();
   })();
 },
-
   118: function(e, t, r) {
     "use strict";
     const n = r(87);
