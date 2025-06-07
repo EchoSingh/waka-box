@@ -836,7 +836,7 @@ module.exports = (function(e, t) {
   87: function(e) {
     e.exports = require("os");
   },
-  104: function(e, t, r) {
+104: function(e, t, r) {
   r(63).config();
   const { WakaTimeClient: n, RANGE: i } = r(650);
   const s = r(0);
@@ -863,7 +863,12 @@ module.exports = (function(e, t) {
     }
 
     const r = [];
-    for (let t = 0; t < Math.min(e.data.languages.length, 5); t++) {
+
+    // Include total time coded in the last 7 days
+    const totalTime = e.data.human_readable_total || "N/A";
+    r.push(`🕒 Total time: ${totalTime}\n`);
+
+    for (let t = 0; t < Math.min(e.data.languages.length, 10); t++) {
       const n = e.data.languages[t];
       const { name: i, percent: s, text: o } = n;
       const a = [
@@ -875,7 +880,7 @@ module.exports = (function(e, t) {
       r.push(a.join(" "));
     }
 
-    if (r.length === 0) return;
+    if (r.length <= 1) return;
 
     try {
       const e = Object.keys(t.data.files)[0];
@@ -883,7 +888,7 @@ module.exports = (function(e, t) {
         gist_id: o,
         files: {
           [e]: {
-            filename: `📊 Weekly development breakdown`,
+            filename: `📊 Weekly development (last 7 days)`,
             content: r.join("\n")
           }
         }
@@ -910,6 +915,7 @@ module.exports = (function(e, t) {
     await main();
   })();
 },
+
   118: function(e, t, r) {
     "use strict";
     const n = r(87);
