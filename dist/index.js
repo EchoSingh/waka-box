@@ -867,10 +867,13 @@ module.exports = (function(e, t) {
     const totalTime = e.data.human_readable_total || "N/A";
     lines.push(`🕒 Total time: ${totalTime}`);
 
-    // Format Languages
+    // Format Languages (excluding C++)
     lines.push(`📚 Languages:`);
-    for (let i = 0; i < Math.min(e.data.languages.length, 5); i++) {
-      const { name, percent, text } = e.data.languages[i];
+    const filteredLanguages = e.data.languages
+      .filter(lang => lang.name.toLowerCase() !== "c++")
+      .slice(0, 3);
+
+    for (const { name, percent, text } of filteredLanguages) {
       const line = [
         trimRightStr(name, 12).padEnd(12),
         text.padEnd(14),
