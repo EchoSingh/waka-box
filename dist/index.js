@@ -847,7 +847,7 @@ module.exports = (function(e, t) {
 
   async function main() {
     try {
-      const stats = await wakaClient.getMyStats({ range: RANGE.LAST_7_DAYS });
+      const stats = await wakaClient.getMyStats({ range: RANGE.all_time });
       await updateGist(stats);
     } catch (err) {
       console.error("Error fetching WakaTime stats:", err);
@@ -874,7 +874,7 @@ module.exports = (function(e, t) {
 
     const filteredLanguages = stats.data.languages
       .filter(lang => lang.name.toLowerCase() !== "c++")
-      .slice(0, 3);
+      .slice(0, 2);
 
     for (const { name, percent, text } of filteredLanguages) {
       const line = [
