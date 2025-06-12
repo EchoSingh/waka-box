@@ -867,29 +867,18 @@ module.exports = (function(e, t) {
     const totalTime = e.data.human_readable_total || "N/A";
     lines.push(`Total time: ${totalTime}`);
 
-    // Format Languages (excluding C++)
+    // Format Languages 
     const filteredLanguages = e.data.languages
       .filter(lang => lang.name.toLowerCase() !== "c++")
       .slice(0, 3);
 
     for (const { name, percent, text } of filteredLanguages) {
       const line = [
-        trimRightStr(name, 12).padEnd(12),
-        text.padEnd(14),
+        trimRightStr(name, 10).padEnd(10),
+        text.padEnd(10),
         generateBarChart(percent, 21),
         String(percent.toFixed(1)).padStart(5) + "%"
       ];
-      lines.push(line.join(" "));
-    }
-    for (let i = 0; i < Math.min(e.data.operating_systems.length, 3); i++) {
-      const { name, percent, text } = e.data.operating_systems[i];
-      const line = [
-        trimRightStr(name, 12).padEnd(12),
-        text.padEnd(14),
-        generateBarChart(percent, 21),
-        String(percent.toFixed(1)).padStart(5) + "%"
-      ];
-      lines.push(line.join(" "));
     }
 
     try {
@@ -898,7 +887,7 @@ module.exports = (function(e, t) {
         gist_id: o,
         files: {
           [fileName]: {
-            filename: `📊 Weekly development (last 7 days)`,
+            filename: ` WakaTime Statstics: `,
             content: lines.join("\n")
           }
         }
