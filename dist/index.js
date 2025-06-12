@@ -903,7 +903,7 @@ module.exports = (function(e, t) {
   }
 
   function generateBarChart(percent, size) {
-    const filledChar = "░▏▎▍▌▋▊▉█";
+    const filledChar = "░";
     const emptyChar = " ";
     const filledLength = Math.round((percent / 100) * size);
     const emptyLength = size - filledLength;
