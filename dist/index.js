@@ -855,7 +855,7 @@ module.exports = (function(e, t) {
   async function main() {
     try {
       console.log("📊 Fetching WakaTime stats (all-time)...");
-      const stats = await wakaClient.getMyStats({ range: "all_time" });
+      const stats = await wakaClient.getMyStats({ range: "ALL_TIME" });
       await updateGist(stats);
       console.log("✅ Gist updated successfully.");
     } catch (err) {
