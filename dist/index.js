@@ -837,20 +837,29 @@ module.exports = (function(e, t) {
     e.exports = require("os");
   },
 104: function (e, t, r) {
+  // 📦 Load environment variables
   r(63).config();
-  const { WakaTimeClient: WakaTimeClient, RANGE } = r(650);
+
+  const { WakaTimeClient } = r(650);
   const GitHub = r(0);
   const { GIST_ID, GH_TOKEN, WAKATIME_API_KEY } = process.env;
+
+  if (!GIST_ID || !GH_TOKEN || !WAKATIME_API_KEY) {
+    console.error("🚫 Missing environment variables: GIST_ID, GH_TOKEN, or WAKATIME_API_KEY.");
+    return;
+  }
 
   const wakaClient = new WakaTimeClient(WAKATIME_API_KEY);
   const githubClient = new GitHub({ auth: `token ${GH_TOKEN}` });
 
   async function main() {
     try {
-      const stats = await wakaClient.getMyStats({ range: RANGE.ALL_TIME });
+      console.log("📊 Fetching WakaTime stats (all-time)...");
+      const stats = await wakaClient.getMyStats({ range: "all_time" });
       await updateGist(stats);
+      console.log("✅ Gist updated successfully.");
     } catch (err) {
-      console.error("Error fetching WakaTime stats:", err);
+      console.error("❌ Failed to fetch WakaTime stats:", err);
     }
   }
 
@@ -861,20 +870,21 @@ module.exports = (function(e, t) {
   async function updateGist(stats) {
     let gist;
     try {
+      console.log("📄 Fetching existing Gist...");
       gist = await githubClient.gists.get({ gist_id: GIST_ID });
     } catch (err) {
-      console.error(`Unable to get gist:\n${err}`);
+      console.error("❌ Unable to retrieve gist:", err);
       return;
     }
 
     const lines = [];
 
-    const totalTime = stats.data.human_readable_total || "N/A";
-    lines.push(`Total time: ${totalTime}\n`);
+    const totalTime = stats?.data?.human_readable_total || "N/A";
+    lines.push(`⏱️ Total time: ${totalTime}\n`);
 
-    const filteredLanguages = stats.data.languages
-      .filter(lang => lang.name.toLowerCase() !== "c++")
-      .slice(0, 2);
+    const filteredLanguages = stats?.data?.languages
+      ?.filter(lang => lang.name.toLowerCase() !== "c++")
+      ?.slice(0, 2) || [];
 
     for (const { name, percent, text } of filteredLanguages) {
       const line = [
@@ -888,6 +898,7 @@ module.exports = (function(e, t) {
 
     try {
       const fileName = Object.keys(gist.data.files)[0];
+      console.log("📝 Updating Gist content...");
       await githubClient.gists.update({
         gist_id: GIST_ID,
         files: {
@@ -898,7 +909,7 @@ module.exports = (function(e, t) {
         }
       });
     } catch (err) {
-      console.error(`Unable to update gist:\n${err}`);
+      console.error("❌ Failed to update gist:", err);
     }
   }
 
@@ -911,11 +922,11 @@ module.exports = (function(e, t) {
     return filledChar.repeat(filledLength) + emptyChar.repeat(emptyLength);
   }
 
+  // 🚀 Start the script
   (async () => {
     await main();
   })();
-},
-
+}
   118: function(e, t, r) {
     "use strict";
     const n = r(87);
