@@ -903,24 +903,18 @@ module.exports = (function(e, t) {
   }
 
   function generateBarChart(percent, size) {
-    const bars = "░▏▎▍▌▋▊▉█";
-    const totalUnits = Math.floor((size * 8 * percent) / 100);
-    const fullBlocks = Math.floor(totalUnits / 8);
+    const filledChar = "░▏▎▍▌▋▊▉█";
+    const emptyChar = " ";
+    const filledLength = Math.round((percent / 100) * size);
+    const emptyLength = size - filledLength;
 
-    if (fullBlocks >= size) {
-      return bars[8].repeat(size);
-    }
-
-    const remainder = totalUnits % 8;
-    return [bars[8].repeat(fullBlocks), bars[remainder] || ""]
-      .join("")
-      .padEnd(size, bars[0]);
+    return filledChar.repeat(filledLength) + emptyChar.repeat(emptyLength);
   }
 
   (async () => {
     await main();
   })();
-}
+},
 
   118: function(e, t, r) {
     "use strict";
