@@ -865,10 +865,9 @@ module.exports = (function(e, t) {
     const lines = [];
 
     const totalTime = e.data.human_readable_total || "N/A";
-    lines.push(`🕒 Total time: ${totalTime}`);
+    lines.push(`Total time: ${totalTime}`);
 
     // Format Languages (excluding C++)
-    lines.push(`📚 Languages:`);
     const filteredLanguages = e.data.languages
       .filter(lang => lang.name.toLowerCase() !== "c++")
       .slice(0, 3);
@@ -882,8 +881,6 @@ module.exports = (function(e, t) {
       ];
       lines.push(line.join(" "));
     }
-
-    lines.push(`\n💻 Operating Systems:`);
     for (let i = 0; i < Math.min(e.data.operating_systems.length, 3); i++) {
       const { name, percent, text } = e.data.operating_systems[i];
       const line = [
