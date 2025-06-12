@@ -836,39 +836,43 @@ module.exports = (function(e, t) {
   87: function(e) {
     e.exports = require("os");
   },
-104: function(e, t, r) {
+104: function (e, t, r) {
   r(63).config();
-  const { WakaTimeClient: n, RANGE: i } = r(650);
-  const s = r(0);
-  const { GIST_ID: o, GH_TOKEN: a, WAKATIME_API_KEY: u } = process.env;
-  const p = new n(u);
-  const c = new s({ auth: `token ${a}` });
+  const { WakaTimeClient: WakaTimeClient, RANGE } = r(650);
+  const GitHub = r(0);
+  const { GIST_ID, GH_TOKEN, WAKATIME_API_KEY } = process.env;
+
+  const wakaClient = new WakaTimeClient(WAKATIME_API_KEY);
+  const githubClient = new GitHub({ auth: `token ${GH_TOKEN}` });
 
   async function main() {
-    const e = await p.getMyStats({ range: i.LAST_7_DAYS });
-    await updateGist(e);
-  }
-
-  function trimRightStr(e, t) {
-    return e.length > t ? e.substring(0, t - 3) + "..." : e;
-  }
-
-  async function updateGist(e) {
-    let t;
     try {
-      t = await c.gists.get({ gist_id: o });
-    } catch (e) {
-      console.error(`Unable to get gist\n${e}`);
+      const stats = await wakaClient.getMyStats({ range: RANGE.LAST_7_DAYS });
+      await updateGist(stats);
+    } catch (err) {
+      console.error("Error fetching WakaTime stats:", err);
+    }
+  }
+
+  function trimRightStr(str, maxLength) {
+    return str.length > maxLength ? str.substring(0, maxLength - 3) + "..." : str;
+  }
+
+  async function updateGist(stats) {
+    let gist;
+    try {
+      gist = await githubClient.gists.get({ gist_id: GIST_ID });
+    } catch (err) {
+      console.error(`Unable to get gist:\n${err}`);
       return;
     }
 
     const lines = [];
 
-    const totalTime = e.data.human_readable_total || "N/A";
-    lines.push(`Total time: ${totalTime}`);
+    const totalTime = stats.data.human_readable_total || "N/A";
+    lines.push(`Total time: ${totalTime}\n`);
 
-    // Format Languages 
-    const filteredLanguages = e.data.languages
+    const filteredLanguages = stats.data.languages
       .filter(lang => lang.name.toLowerCase() !== "c++")
       .slice(0, 3);
 
@@ -878,42 +882,46 @@ module.exports = (function(e, t) {
         text.padEnd(10),
         generateBarChart(percent, 21),
         String(percent.toFixed(1)).padStart(5) + "%"
-      ];
+      ].join(" ");
+      lines.push(line);
     }
 
     try {
-      const fileName = Object.keys(t.data.files)[0];
-      await c.gists.update({
-        gist_id: o,
+      const fileName = Object.keys(gist.data.files)[0];
+      await githubClient.gists.update({
+        gist_id: GIST_ID,
         files: {
           [fileName]: {
-            filename: ` WakaTime Statstics: `,
+            filename: "WakaTime Statistics",
             content: lines.join("\n")
           }
         }
       });
-    } catch (e) {
-      console.error(`Unable to update gist\n${e}`);
+    } catch (err) {
+      console.error(`Unable to update gist:\n${err}`);
     }
   }
 
-  function generateBarChart(e, t) {
-    const r = "░▏▎▍▌▋▊▉█";
-    const n = Math.floor((t * 8 * e) / 100);
-    const i = Math.floor(n / 8);
-    if (i >= t) {
-      return r.substring(8, 9).repeat(t);
+  function generateBarChart(percent, size) {
+    const bars = "░▏▎▍▌▋▊▉█";
+    const totalUnits = Math.floor((size * 8 * percent) / 100);
+    const fullBlocks = Math.floor(totalUnits / 8);
+
+    if (fullBlocks >= size) {
+      return bars[8].repeat(size);
     }
-    const s = n % 8;
-    return [r.substring(8, 9).repeat(i), r.substring(s, s + 1)]
+
+    const remainder = totalUnits % 8;
+    return [bars[8].repeat(fullBlocks), bars[remainder] || ""]
       .join("")
-      .padEnd(t, r.substring(0, 1));
+      .padEnd(size, bars[0]);
   }
 
   (async () => {
     await main();
   })();
-},
+}
+
   118: function(e, t, r) {
     "use strict";
     const n = r(87);
