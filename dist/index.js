@@ -836,97 +836,81 @@ module.exports = (function(e, t) {
   87: function(e) {
     e.exports = require("os");
   },
-104: function (e, t, r) {
-  // 📦 Load environment variables
+ 104: function(e, t, r) {
   r(63).config();
-
-  const { WakaTimeClient } = r(650);
-  const GitHub = r(0);
-  const { GIST_ID, GH_TOKEN, WAKATIME_API_KEY } = process.env;
-
-  if (!GIST_ID || !GH_TOKEN || !WAKATIME_API_KEY) {
-    console.error("🚫 Missing environment variables: GIST_ID, GH_TOKEN, or WAKATIME_API_KEY.");
-    return;
-  }
-
-  const wakaClient = new WakaTimeClient(WAKATIME_API_KEY);
-  const githubClient = new GitHub({ auth: `token ${GH_TOKEN}` });
+  const { WakaTimeClient: n, RANGE: i } = r(650);
+  const s = r(0);
+  const { GIST_ID: o, GH_TOKEN: a, WAKATIME_API_KEY: u } = process.env;
+  const p = new n(u);
+  const c = new s({ auth: `token ${a}` });
 
   async function main() {
-    try {
-      console.log("📊 Fetching WakaTime stats (all-time)...");
-      const stats = await wakaClient.getMyStats({ range: "ALL_TIME" });
-      await updateGist(stats);
-      console.log("✅ Gist updated successfully.");
-    } catch (err) {
-      console.error("❌ Failed to fetch WakaTime stats:", err);
-    }
+    const e = await p.getMyStats({ range: i.LAST_7_DAYS });
+    await updateGist(e);
   }
 
-  function trimRightStr(str, maxLength) {
-    return str.length > maxLength ? str.substring(0, maxLength - 3) + "..." : str;
+  function trimRightStr(e, t) {
+    return e.length > t ? e.substring(0, t - 3) + "..." : e;
   }
 
-  async function updateGist(stats) {
-    let gist;
+  async function updateGist(e) {
+    let t;
     try {
-      console.log("📄 Fetching existing Gist...");
-      gist = await githubClient.gists.get({ gist_id: GIST_ID });
-    } catch (err) {
-      console.error("❌ Unable to retrieve gist:", err);
-      return;
+      t = await c.gists.get({ gist_id: o });
+    } catch (e) {
+      console.error(`Unable to get gist\n${e}`);
     }
 
-    const lines = [];
+    const r = [];
+    const filteredLanguages = e.data.languages.filter(lang => lang.name !== "C++");
 
-    const totalTime = stats?.data?.human_readable_total || "N/A";
-    lines.push(`⏱️ Total time: ${totalTime}\n`);
-
-    const filteredLanguages = stats?.data?.languages
-      ?.filter(lang => lang.name.toLowerCase() !== "c++")
-      ?.slice(0, 2) || [];
-
-    for (const { name, percent, text } of filteredLanguages) {
-      const line = [
-        trimRightStr(name, 10).padEnd(10),
-        text.padEnd(10),
-        generateBarChart(percent, 21),
-        String(percent.toFixed(1)).padStart(5) + "%"
-      ].join(" ");
-      lines.push(line);
+    for (let t = 0; t < Math.min(filteredLanguages.length, 5); t++) {
+      const n = filteredLanguages[t];
+      const { name: i, percent: s, text: o } = n;
+      const a = [
+        trimRightStr(i, 10).padEnd(10),
+        o.padEnd(14),
+        generateBarChart(s, 21),
+        String(s.toFixed(1)).padStart(5) + "%"
+      ];
+      r.push(a.join(" "));
     }
 
+    if (r.length == 0) return;
+
     try {
-      const fileName = Object.keys(gist.data.files)[0];
-      console.log("📝 Updating Gist content...");
-      await githubClient.gists.update({
-        gist_id: GIST_ID,
+      const e = Object.keys(t.data.files)[0];
+      await c.gists.update({
+        gist_id: o,
         files: {
-          [fileName]: {
-            filename: "WakaTime Statistics",
-            content: lines.join("\n")
+          [e]: {
+            filename: `📊 Weekly development breakdown`,
+            content: r.join("\n")
           }
         }
       });
-    } catch (err) {
-      console.error("❌ Failed to update gist:", err);
+    } catch (e) {
+      console.error(`Unable to update gist\n${e}`);
     }
   }
 
-  function generateBarChart(percent, size) {
-    const filledChar = "░";
-    const emptyChar = " ";
-    const filledLength = Math.round((percent / 100) * size);
-    const emptyLength = size - filledLength;
-
-    return filledChar.repeat(filledLength) + emptyChar.repeat(emptyLength);
+  function generateBarChart(e, t) {
+    const r = "░▏▎▍▌▋▊▉█";
+    const n = Math.floor((t * 8 * e) / 100);
+    const i = Math.floor(n / 8);
+    if (i >= t) {
+      return r.substring(8, 9).repeat(t);
+    }
+    const s = n % 8;
+    return [r.substring(8, 9).repeat(i), r.substring(s, s + 1)]
+      .join("")
+      .padEnd(t, r.substring(0, 1));
   }
 
-  // 🚀 Start the script
   (async () => {
     await main();
   })();
-},  
+}
  118: function(e, t, r) {
     "use strict";
     const n = r(87);
