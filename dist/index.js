@@ -845,7 +845,7 @@ module.exports = (function(e, t) {
   const c = new s({ auth: `token ${a}` });
 
   async function main() {
-    const e = await p.getMyStats({ range: i.all_time });
+    const e = await p.getMyStats({ range: i.LAST_7_DAYS });
     await updateGist(e);
   }
 
