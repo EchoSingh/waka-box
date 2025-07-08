@@ -845,7 +845,7 @@ module.exports = (function(e, t) {
   const c = new s({ auth: `token ${a}` });
 
   async function main() {
-    const e = await p.getMyStats({ range: i.LAST_7_DAYS });
+    const e = await p.getMyStats({ range: i.all_time });
     await updateGist(e);
   }
 
@@ -895,7 +895,7 @@ module.exports = (function(e, t) {
   }
 
   function generateBarChart(e, t) {
-    const r = "░▏▎▍▌▋▊▉█";
+    const r = "⣀⣄⣤⣦⣶⣷⣿";
     const n = Math.floor((t * 8 * e) / 100);
     const i = Math.floor(n / 8);
     if (i >= t) {
